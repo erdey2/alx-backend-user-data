@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Basic authentication module """
 from flask import request
+from typing import List, TypeVar
 
 
 class Auth:
