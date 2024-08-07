@@ -26,7 +26,6 @@ class BasicAuth(Auth):
 
         return encoded
 
-
     def decode_base64_authorization_header(self,
                                            base64_authorization_header: str
                                            ) -> str:
