@@ -4,8 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
-
-from user import Base
+from user import Base, User
 
 
 class DB:
@@ -20,8 +19,7 @@ class DB:
 
     @property
     def _session(self) -> Session:
-        """Memoized session object
-        """
+        """ Memoized session object """
         if self.__session is None:
             DBSession = sessionmaker(bind=self._engine)
             self.__session = DBSession()
@@ -38,3 +36,30 @@ class DB:
             session.rollback()
             new_user = None
         return new_user
+
+    def find_user_by(self, **kwargs) -> User:
+        """ Find user by a given attribute """
+
+        attrs, vals = [], []
+        for attr, val in kwargs.items():
+            if not hasattr(User, attr):
+                raise InvalidRequestError()
+            attrs.append(getattr(User, attr))
+            vals.append(val)
+
+        session = self._session
+        query = session.query(User)
+        user = query.filter(tuple_(*attrs).in_([tuple(vals)])).first()
+        if not user:
+            raise NoResultFound()
+        return user
+
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """ Searches for user instance using given id """
+        user = self.find_user_by(id=user_id)
+        session = self._session
+        for attr, val in kwargs.items():
+            if not hasattr(User, attr):
+                raise ValueError
+            setattr(user, attr, val)
+        session.commit()
