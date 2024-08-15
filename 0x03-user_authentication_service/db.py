@@ -48,3 +48,15 @@ class DB:
             self._session.rollback()
             raise
         return new_user
+
+    def find_user_by(self, **kwargs: Dict[str, str]) -> User:
+        """ Find a user by specified attributes. """
+        session = self._session
+        try:
+            user = session.query(User).filter_by(**kwargs).one()
+        except NoResultFound:
+            raise NoResultFound()
+        except InvalidRequestError:
+            raise InvalidRequestError()
+        # print("Type of user: {}".format(type(user)))
+        return user
